@@ -1,0 +1,10 @@
+datasets==3.3.1
+evaluate==0.4.3
+matplotlib==3.7.5
+numpy==1.26.4
+pandas==2.2.3
+seaborn==0.13.2
+torch==2.5.1+cu121
+tqdm==4.67.1
+transformers==4.45.2
+python-dotenv==1.0.1
