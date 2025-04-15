@@ -50,6 +50,7 @@ print(f"Status: \n\
       DATASET_NAME_HF: {DATASET_NAME_HF}\n\
       DATASET_NAME_LOC: {DATASET_NAME_LOC}\n\
       MAX_SEQUENCE_LEN: {MAX_SEQUENCE_LEN}\n\
+      FP16: {FP16}\n\
       RANDOM_STATE: {RANDOM_STATE}\n\
       TEST_SIZE: {TEST_SIZE}\n\
       TEST_MAX_SAMPLES: {TEST_MAX_SAMPLES}\n\
@@ -158,7 +159,7 @@ training_args = Seq2SeqTrainingArguments(
     load_best_model_at_end=True, # загружать ли в конце обучения чекпоинт с лучшей метрикой (также 100% сохраняет лучший чекпоинт)
     metric_for_best_model="eval_bleu", # название метрики, по которой будет определяться лучший чекпоинт обучения
     greater_is_better=True, # должна ли отслеживаемая метрика увеличиваться
-    use_cpu=False if DEVICE != "cpu" else True, # использовать ли для подсчёта устройства, отличные от CPU
+    use_cpu=True if DEVICE == "cpu" else False, # использовать ли для подсчёта устройства, отличные от CPU
     push_to_hub=False,
     report_to="none" # не запускать wandb backend
 )
