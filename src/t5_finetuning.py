@@ -148,6 +148,8 @@ training_args = Seq2SeqTrainingArguments(
     eval_steps=int(dataset["train"].shape[0] / BATCH_SIZE), # подсчёт метрик и сохранение происходят каждые eval_steps шагов (нужно для работы для работы EarlyStoping), имитирующие одну эпоху
     save_strategy="steps", # стратегия сохранения модели, "steps" - через несколько вызовов forward pass (нужен для работы EarlyStoping), "epoch" — по эпохам
     save_steps=int(dataset["train"].shape[0] / BATCH_SIZE), # для работы должен быть кратен eval_steps, если стратегии стоят как "steps"
+    logging_strategy="steps", # стратегия подсчёта метрик на обучающей части
+    logging_steps=int(dataset["train"].shape[0] / BATCH_SIZE),
     learning_rate=LEARNING_RATE, # шаг обучения
     per_device_train_batch_size=BATCH_SIZE, # размер батча при обучении
     per_device_eval_batch_size=BATCH_SIZE, # размер батча при валидации
@@ -155,7 +157,10 @@ training_args = Seq2SeqTrainingArguments(
     save_total_limit=3, # количество сохраняемых чекпоинтов
     num_train_epochs=EPOCHS,
     predict_with_generate=True,
+
     fp16=FP16, # проводить ли обучение в float16 вместо float32
+    # bf16=False, # проводить обучение в float16 от google (так обучены некоторые модели google и они не умеют работать с обычным fp16 из-за возникающих ошибок переполнения)
+
     load_best_model_at_end=True, # загружать ли в конце обучения чекпоинт с лучшей метрикой (также 100% сохраняет лучший чекпоинт)
     metric_for_best_model="eval_bleu", # название метрики, по которой будет определяться лучший чекпоинт обучения
     greater_is_better=True, # должна ли отслеживаемая метрика увеличиваться
