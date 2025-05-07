@@ -3,7 +3,7 @@ import numpy as np # для работы с массивами
 import pandas as pd # для удобной работы с датасетом
 import random as random # для работы со случайностью
 from dotenv import load_dotenv # для загрузки переменных окружения
-import pickle # для сохранения и загрузки объектов
+import json # для сохранения и загрузки объектов
 from tqdm.auto import tqdm # для отслеживания прогресса
 
 from datasets import Dataset, load_dataset, load_from_disk # для работы с HuggingFace датасетами
@@ -158,12 +158,12 @@ tokens_count, latency, translations = translate(model, tokenizer, dataset["test"
 if not os.path.exists(RESULTS_DIR + MODEL_NAME):
     os.makedirs(RESULTS_DIR + MODEL_NAME)
 
-with open(RESULTS_DIR + MODEL_NAME + "/tokens_count.pkl", "wb") as f: # открываем файл для записи по битам (wb)
-    pickle.dump(tokens_count, f) # сохраняем объект в файл f
-with open(RESULTS_DIR + MODEL_NAME + "/latency.pkl", "wb") as f: # открываем файл для записи по битам (wb)
-    pickle.dump(latency, f) # сохраняем объект в файл f
-with open(RESULTS_DIR + MODEL_NAME + "/translations.pkl", "wb") as f: # открываем файл для записи по битам (wb)
-    pickle.dump(translations, f) # сохраняем объект в файл f
+with open(RESULTS_DIR + MODEL_NAME + "/tokens_count.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
+    json.dump(tokens_count, f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
+with open(RESULTS_DIR + MODEL_NAME + "/latency.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
+    json.dump(latency, f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
+with open(RESULTS_DIR + MODEL_NAME + "/translations.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
+    json.dump(translations, f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
 
 
 
