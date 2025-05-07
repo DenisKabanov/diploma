@@ -135,14 +135,14 @@ def compute_metrics(eval_preds):
     result = {k: round(v, 5) for k, v in result.items()} # округляем float до 5 знаков после запятой
     return result
 
-if not os.path.exists(RESULTS_DIR + MODEL_NAME):
-    os.makedirs(RESULTS_DIR + MODEL_NAME)
+if not os.path.exists(RESULTS_DIR + MODEL_NAME + "_finetuning"):
+    os.makedirs(RESULTS_DIR + MODEL_NAME + "_finetuning")
 
 
 
 
 training_args = Seq2SeqTrainingArguments(
-    output_dir=RESULTS_DIR + MODEL_NAME,
+    output_dir=RESULTS_DIR + MODEL_NAME + "_finetuning",
     # evaluation_strategy ="epoch",
     evaluation_strategy="steps", # стратегия оценивания модели, "steps" - через несколько вызовов forward pass (нужен для работы EarlyStoping), "epoch" — по эпохам
     eval_steps=int(dataset["train"].shape[0] / BATCH_SIZE), # подсчёт метрик и сохранение происходят каждые eval_steps шагов (нужно для работы для работы EarlyStoping), имитирующие одну эпоху
