@@ -168,6 +168,13 @@ with open(RESULTS_DIR + MODEL_NAME + "/translations.json", mode='w', encoding='u
 with open(RESULTS_DIR + MODEL_NAME + "/BLEU.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
     json.dump(bleu, f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
 
+with open(RESULTS_DIR + MODEL_NAME + "/translations_expected.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
+    json.dump(dataset["test"]["tgt"], f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
+with open(RESULTS_DIR + MODEL_NAME + "/sources.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
+    json.dump(dataset["test"]["src"], f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
+
+
+
 
 results = pd.DataFrame({"Tokens count": tokens_count, "Latency": latency}) # собираем данные в DataFrame
 results.sort_values(by=["Tokens count"], inplace=True)
