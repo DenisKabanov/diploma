@@ -28,17 +28,11 @@ DATASET_NAME_HF = os.getenv("DATASET_NAME_HF")
 DATASET_NAME_LOC = os.getenv("DATASET_NAME_LOC")
 
 MAX_SEQUENCE_LEN = int(os.getenv("MAX_SEQUENCE_LEN"))
-FP16 = bool(int(os.getenv("FP16")))
 
 RANDOM_STATE = int(os.getenv("RANDOM_STATE"))
 TEST_SIZE = float(os.getenv("TEST_SIZE"))
 TEST_MAX_SAMPLES = int(os.getenv("TEST_MAX_SAMPLES"))
 TRAIN_MAX_SAMPLES = int(os.getenv("TRAIN_MAX_SAMPLES"))
-
-EPOCHS = int(os.getenv("EPOCHS"))
-EPOCHS_PATIENCE = int(os.getenv("EPOCHS_PATIENCE"))
-LEARNING_RATE = float(os.getenv("LEARNING_RATE"))
-BATCH_SIZE = int(os.getenv("BATCH_SIZE"))
 
 DEVICE = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -49,15 +43,10 @@ print(f"Status: \n\
       DATASET_NAME_HF: {DATASET_NAME_HF}\n\
       DATASET_NAME_LOC: {DATASET_NAME_LOC}\n\
       MAX_SEQUENCE_LEN: {MAX_SEQUENCE_LEN}\n\
-      FP16: {FP16}\n\
       RANDOM_STATE: {RANDOM_STATE}\n\
       TEST_SIZE: {TEST_SIZE}\n\
       TEST_MAX_SAMPLES: {TEST_MAX_SAMPLES}\n\
       TRAIN_MAX_SAMPLES: {TRAIN_MAX_SAMPLES}\n\
-      EPOCHS: {EPOCHS}\n\
-      EPOCHS_PATIENCE: {EPOCHS_PATIENCE}\n\
-      LEARNING_RATE: {LEARNING_RATE}\n\
-      BATCH_SIZE: {BATCH_SIZE}\n\
       DEVICE: {DEVICE}\n\
       ")
 
