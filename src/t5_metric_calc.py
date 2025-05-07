@@ -145,19 +145,6 @@ def translate(model, tokenizer, texts) -> tuple:
 
 tokens_count, latency, translations = translate(model, tokenizer, dataset["test"])
 
-if not os.path.exists(RESULTS_DIR + MODEL_NAME):
-    os.makedirs(RESULTS_DIR + MODEL_NAME)
-
-with open(RESULTS_DIR + MODEL_NAME + "/tokens_count.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
-    json.dump(tokens_count, f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
-with open(RESULTS_DIR + MODEL_NAME + "/latency.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
-    json.dump(latency, f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
-with open(RESULTS_DIR + MODEL_NAME + "/translations.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
-    json.dump(translations, f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
-
-
-
-
 metric_BLEU = evaluate.load("bleu") # загружаем метрику
 
 def compute_metrics(preds, labels):
@@ -167,9 +154,19 @@ def compute_metrics(preds, labels):
     metric = metric_BLEU.compute(predictions=preds, references=labels)["bleu"]
     print(f"Значение метрики BLEU: {metric}")
 
-compute_metrics(translations, dataset["test"]["tgt"])
+bleu = compute_metrics(translations, dataset["test"]["tgt"])
 
+if not os.path.exists(RESULTS_DIR + MODEL_NAME):
+    os.makedirs(RESULTS_DIR + MODEL_NAME)
 
+with open(RESULTS_DIR + MODEL_NAME + "/tokens_count.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
+    json.dump(tokens_count, f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
+with open(RESULTS_DIR + MODEL_NAME + "/latency.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
+    json.dump(latency, f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
+with open(RESULTS_DIR + MODEL_NAME + "/translations.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
+    json.dump(translations, f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
+with open(RESULTS_DIR + MODEL_NAME + "/BLEU.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
+    json.dump(bleu, f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
 
 
 results = pd.DataFrame({"Tokens count": tokens_count, "Latency": latency}) # собираем данные в DataFrame
