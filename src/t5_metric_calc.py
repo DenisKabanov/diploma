@@ -153,6 +153,7 @@ def compute_metrics(preds, labels):
 
     metric = metric_BLEU.compute(predictions=preds, references=labels)["bleu"]
     print(f"Значение метрики BLEU: {metric}")
+    return metric
 
 bleu = compute_metrics(translations, dataset["test"]["tgt"])
 
