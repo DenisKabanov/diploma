@@ -9,7 +9,6 @@ from torch.nn.utils import prune
 
 
 load_dotenv() # загрузка переменных окружения
-RESULTS_DIR = os.getenv("RESULTS_DIR")
 MODELS_DIR = os.getenv("MODELS_DIR")
 MODEL_NAME = os.getenv("MODEL_NAME")
 
@@ -19,7 +18,6 @@ PRUNE_AMOUNT = float(os.getenv("PRUNE_AMOUNT"))
 DEVICE = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
 print(f"Status: \n\
-      RESULTS_DIR: {RESULTS_DIR}\n\
       MODELS_DIR: {MODELS_DIR}\n\
       MODEL_NAME: {MODEL_NAME}\n\
       MAX_SEQUENCE_LEN: {MAX_SEQUENCE_LEN}\n\

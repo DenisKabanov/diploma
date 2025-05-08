@@ -125,14 +125,14 @@ def translate(model, tokenizer, texts) -> tuple:
 
     with torch.no_grad(): # отключаем подсчёт градиентов
         #================================ Быстрый перевод батчами ==========================================
-        # tokens_encoded = tokenizer(texts, max_length=tokenizer.max_len_single_sentence, return_tensors="pt", truncation=True, padding=True) # токенизируем данные (max_length — максимальное число токенов в документе, return_tensors — тип возвращаемых данных, np для numpy.array, pt для torch.tensor; truncation и padding — обрезание лишних токенов и автозаполнение недостающих до max_length)
+        # tokens_encoded = tokenizer(texts, max_length=MAX_SEQUENCE_LEN, return_tensors="pt", truncation=True, padding=True) # токенизируем данные (max_length — максимальное число токенов в документе, return_tensors — тип возвращаемых данных, np для numpy.array, pt для torch.tensor; truncation и padding — обрезание лишних токенов и автозаполнение недостающих до max_length)
         # tokens_generated = model.generate(**tokens_encoded)
         # translations = tokenizer.batch_decode(tokens_generated, skip_special_tokens=True) # декодирование последовательности токенов (аналог .decode, но для работы с несколькими последовательностями сразу), skip_special_tokens — выводить ли специальные токены
         #-------------------------------- Перевод для учёта времени работы ---------------------------------
         for text in tqdm(texts):
             time_start = time.time() # замеряем время начала работы  с моделью
 
-            tokens_encoded = tokenizer(text, max_length=tokenizer.max_len_single_sentence, return_tensors="pt", truncation=True, padding=True) # токенизируем данные (max_length — максимальное число токенов в документе, return_tensors — тип возвращаемых данных, np для numpy.array, pt для torch.tensor; truncation и padding — обрезание лишних токенов и автозаполнение недостающих до max_length)
+            tokens_encoded = tokenizer(text, max_length=MAX_SEQUENCE_LEN, return_tensors="pt", truncation=True, padding=True) # токенизируем данные (max_length — максимальное число токенов в документе, return_tensors — тип возвращаемых данных, np для numpy.array, pt для torch.tensor; truncation и padding — обрезание лишних токенов и автозаполнение недостающих до max_length)
             tokens_count.append(tokens_encoded["input_ids"].shape[1]) # запоминаем количество токенов
 
             tokens_generated = model.generate(**tokens_encoded) # генерируем новую последовательность токенов (переводим текст)
