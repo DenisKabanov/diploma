@@ -23,7 +23,6 @@ load_dotenv() # загрузка переменных окружения
 DATA_DIR = os.getenv("DATA_DIR")
 RESULTS_DIR = os.getenv("RESULTS_DIR")
 MODELS_DIR = os.getenv("MODELS_DIR")
-MODEL_NAME = os.getenv("MODEL_NAME")
 DATASET_NAME_HF = os.getenv("DATASET_NAME_HF")
 DATASET_NAME_LOC = os.getenv("DATASET_NAME_LOC")
 
@@ -41,7 +40,6 @@ print(f"Status: \n\
       DATA_DIR: {DATA_DIR}\n\
       RESULTS_DIR: {RESULTS_DIR}\n\
       MODELS_DIR: {MODELS_DIR}\n\
-      MODEL_NAME: {MODEL_NAME}\n\
       DATASET_NAME_HF: {DATASET_NAME_HF}\n\
       DATASET_NAME_LOC: {DATASET_NAME_LOC}\n\
       MAX_SEQUENCE_LEN: {MAX_SEQUENCE_LEN}\n\
