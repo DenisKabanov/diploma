@@ -57,12 +57,12 @@ print(f"Status: \n\
 model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
 tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME)
 
-if not os.path.exists(RESULTS_DIR + MODEL_NAME):
+if not os.path.exists(MODELS_DIR + MODEL_NAME):
     print("Сохраняю модель...")
     model.save_pretrained(MODELS_DIR + MODEL_NAME, from_pt=True) # сохранение модели
     tokenizer.save_pretrained(MODELS_DIR + MODEL_NAME) # сохранение токенизатора
 else:
-    print(f"Модель по пути {RESULTS_DIR + MODEL_NAME} уже была сохранена ранее!")
+    print(f"Модель по пути {MODELS_DIR + MODEL_NAME} уже была сохранена ранее!")
 
 
 
