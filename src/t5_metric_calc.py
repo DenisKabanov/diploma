@@ -218,5 +218,5 @@ plt.title("Зависимость времени перевода от разм�
 plt.xlabel("Количество токенов") # подпись по оси x
 plt.ylabel("Задержка перевода (latency, sec)") # подпись по оси y
 plt.legend() # отображение подписей графиков
-plt.savefig(f"{RESULTS_DIR}{MODEL_NAME}/latency_graph.png", dpi="figure", bbox_inches=None) # сохранение графика
+plt.savefig(f"{RESULTS_DIR}{MODEL_NAME}/latency_graph.png", dpi="figure", bbox_inches="tight", facecolor="white") # сохранение графика
 plt.show() # показ фигуры

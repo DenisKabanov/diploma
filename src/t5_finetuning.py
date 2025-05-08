@@ -236,7 +236,7 @@ def plot_history(history):
     axes[2].grid(True) # отображение сетки на графике
     axes[2].legend() # отображение подписей графиков
 
-    plt.savefig(f"{RESULTS_DIR}{MODEL_NAME}/graph.png", dpi="figure", bbox_inches=None) # сохранение графика
+    plt.savefig(f"{RESULTS_DIR}{MODEL_NAME}/graph.png", dpi="figure", bbox_inches="tight", facecolor="white") # сохранение графика
     plt.show() # показ фигуры
 
 plot_history(history)
