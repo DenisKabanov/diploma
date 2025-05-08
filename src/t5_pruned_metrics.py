@@ -28,6 +28,7 @@ DATASET_NAME_HF = os.getenv("DATASET_NAME_HF")
 DATASET_NAME_LOC = os.getenv("DATASET_NAME_LOC")
 
 MAX_SEQUENCE_LEN = int(os.getenv("MAX_SEQUENCE_LEN"))
+PRUNE_AMOUNT = float(os.getenv("PRUNE_AMOUNT"))
 
 RANDOM_STATE = int(os.getenv("RANDOM_STATE"))
 TEST_SIZE = float(os.getenv("TEST_SIZE"))
@@ -44,6 +45,7 @@ print(f"Status: \n\
       DATASET_NAME_HF: {DATASET_NAME_HF}\n\
       DATASET_NAME_LOC: {DATASET_NAME_LOC}\n\
       MAX_SEQUENCE_LEN: {MAX_SEQUENCE_LEN}\n\
+      PRUNE_AMOUNT: {PRUNE_AMOUNT}\n\
       RANDOM_STATE: {RANDOM_STATE}\n\
       TEST_SIZE: {TEST_SIZE}\n\
       TEST_MAX_SAMPLES: {TEST_MAX_SAMPLES}\n\
@@ -54,15 +56,9 @@ print(f"Status: \n\
 
 
 
-model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
-tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME)
+model = T5ForConditionalGeneration.from_pretrained(MODELS_DIR + f"t5_pruned_{PRUNE_AMOUNT}")
+tokenizer = T5Tokenizer.from_pretrained(MODELS_DIR + f"t5_pruned_{PRUNE_AMOUNT}")
 
-if not os.path.exists(MODELS_DIR + MODEL_NAME):
-    print("Сохраняю модель...")
-    model.save_pretrained(MODELS_DIR + MODEL_NAME, from_pt=True) # сохранение модели
-    tokenizer.save_pretrained(MODELS_DIR + MODEL_NAME) # сохранение токенизатора
-else:
-    print(f"Модель по пути {MODELS_DIR + MODEL_NAME} уже была сохранена ранее!")
 
 
 
@@ -72,7 +68,6 @@ if not os.path.exists(DATA_DIR + DATASET_NAME_LOC):
     dataset.save_to_disk(DATA_DIR + DATASET_NAME_LOC) # локальное сохранение датасета (в формате arrow)
 else:
     print(f"Датасет по пути {DATA_DIR + DATASET_NAME_LOC} уже был сохранён ранее!")
-
 
 def preprocess_function(data: Dataset, random_state=RANDOM_STATE):
     random.seed(random_state) # Set the random number generator to a fixed sequence.
@@ -106,12 +101,6 @@ dataset["test"] = dataset["test"].select(range(TEST_MAX_SAMPLES))
 
 vocab_len = tokenizer.vocab_size # размер словаря
 print(f"Размер словаря токенизатора: {vocab_len}, с учётом особых токенов: {len(tokenizer.get_vocab())}.")
-
-word2id = {} # словарь соответствия слова его id_шнику
-id2word = {} # словарь соответствия id_шника слову
-for word, id in tokenizer.get_vocab().items(): # идём по словам в словаре
-    word2id[word] = id # заполняем словарь соответствия слова его id_шнику
-    id2word[id] = word # заполняем словарь соответствия id_шника слову
 
 
 
@@ -162,21 +151,21 @@ def compute_metrics(preds, labels):
 
 bleu = compute_metrics(translations, dataset["test"]["tgt"])
 
-if not os.path.exists(RESULTS_DIR + MODEL_NAME):
-    os.makedirs(RESULTS_DIR + MODEL_NAME)
+if not os.path.exists(RESULTS_DIR + f"t5_pruned_{PRUNE_AMOUNT}"):
+    os.makedirs(RESULTS_DIR + f"t5_pruned_{PRUNE_AMOUNT}")
 
-with open(RESULTS_DIR + MODEL_NAME + "/tokens_count.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
+with open(RESULTS_DIR + f"t5_pruned_{PRUNE_AMOUNT}/tokens_count.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
     json.dump(tokens_count, f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
-with open(RESULTS_DIR + MODEL_NAME + "/latency.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
+with open(RESULTS_DIR + f"t5_pruned_{PRUNE_AMOUNT}/latency.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
     json.dump(latency, f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
-with open(RESULTS_DIR + MODEL_NAME + "/translations.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
+with open(RESULTS_DIR + f"t5_pruned_{PRUNE_AMOUNT}/translations.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
     json.dump(translations, f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
-with open(RESULTS_DIR + MODEL_NAME + "/BLEU.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
+with open(RESULTS_DIR + f"t5_pruned_{PRUNE_AMOUNT}/BLEU.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
     json.dump(bleu, f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
 
-with open(RESULTS_DIR + MODEL_NAME + "/translations_expected.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
+with open(RESULTS_DIR + f"t5_pruned_{PRUNE_AMOUNT}/translations_expected.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
     json.dump(dataset["test"]["tgt"], f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
-with open(RESULTS_DIR + MODEL_NAME + "/sources.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
+with open(RESULTS_DIR + f"t5_pruned_{PRUNE_AMOUNT}/sources.json", mode='w', encoding='utf-8') as f: # открываем файл для записи (w — не побитовой)
     json.dump(dataset["test"]["src"], f, ensure_ascii=False, indent=4) # сохраняем объект в файл f
 
 
@@ -223,5 +212,5 @@ plt.title("Зависимость времени перевода от разм�
 plt.xlabel("Количество токенов") # подпись по оси x
 plt.ylabel("Задержка перевода (latency, sec)") # подпись по оси y
 plt.legend() # отображение подписей графиков
-plt.savefig(f"{RESULTS_DIR}{MODEL_NAME}/latency_graph.png", dpi="figure", bbox_inches="tight", facecolor="white") # сохранение графика
+plt.savefig(f"{RESULTS_DIR}t5_pruned_{PRUNE_AMOUNT}/latency_graph.png", dpi="figure", bbox_inches="tight", facecolor="white") # сохранение графика
 plt.show() # показ фигуры

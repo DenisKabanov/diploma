@@ -44,13 +44,13 @@ for param in model.parameters():
         size_model += param.numel() * torch.finfo(param.data.dtype).bits
     else:
         size_model += param.numel() * torch.iinfo(param.data.dtype).bits
-print(f"Вес модели: {size_model / 8e6:.2f} / MB")
+print(f"Вес модели: {size_model / 8e6:.2f} MB")
 
 
 
 
 def prune_model(model, pruning_amount=0.2): # pruning_amount — Controls the fraction of weights to prune (e.g., 0.2 means 20% of the weights will be pruned).
-    print(f"Прунинг {pruning_amount}% параметров модели.")
+    print(f"Прунинг {pruning_amount * 100}% параметров модели.")
     for name, module in model.named_modules():
         if isinstance(module, torch.nn.Linear):
             prune.l1_unstructured(module, name='weight', amount=pruning_amount)

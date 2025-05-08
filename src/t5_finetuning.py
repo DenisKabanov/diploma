@@ -80,7 +80,11 @@ tokenizer.save_pretrained(MODELS_DIR + MODEL_NAME) # сохранение ток
 
 
 dataset = load_dataset(DATASET_NAME_HF, name="eng_Latn-rus_Cyrl") # скачивание датасета, name — название subset_а с HuggingFace
-dataset.save_to_disk(DATA_DIR + DATASET_NAME_LOC) # локальное сохранение датасета (в формате arrow)
+if not os.path.exists(DATA_DIR + DATASET_NAME_LOC):
+    print("Сохраняю скаченный датасет...")
+    dataset.save_to_disk(DATA_DIR + DATASET_NAME_LOC) # локальное сохранение датасета (в формате arrow)
+else:
+    print(f"Датасет по пути {DATA_DIR + DATASET_NAME_LOC} уже был сохранён ранее!")
 
 def preprocess_function(data: Dataset, random_state=RANDOM_STATE):
     random.seed(random_state) # Set the random number generator to a fixed sequence.
@@ -99,7 +103,12 @@ dataset = dataset.remove_columns(["provenance", "src", "tgt"]) # удалени�
 dataset = dataset.rename_column("new_src", "src") # переименовываем колонку
 dataset = dataset.rename_column("new_tgt", "tgt") # переименовываем колонку
 dataset = dataset["train"].train_test_split(test_size=TEST_SIZE, shuffle=True, seed=RANDOM_STATE) # разбиение датасета на тестовую и обучающую выборки
-dataset.save_to_disk(DATA_DIR + DATASET_NAME_LOC + "_t5_processed") # локальное сохранение датасета (в формате arrow)
+
+if not os.path.exists(DATA_DIR + DATASET_NAME_LOC + "_t5_processed"):
+    print("Сохраняю обработанный датасет...")
+    dataset.save_to_disk(DATA_DIR + DATASET_NAME_LOC + "_t5_processed") # локальное сохранение датасета (в формате arrow)
+else:
+    print(f"Датасет по пути {DATA_DIR + DATASET_NAME_LOC + '_t5_processed'} уже был сохранён ранее!")
 
 dataset["train"] = dataset["train"].select(range(TRAIN_MAX_SAMPLES))
 dataset["test"] = dataset["test"].select(range(TEST_MAX_SAMPLES))
