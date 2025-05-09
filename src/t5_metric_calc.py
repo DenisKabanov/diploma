@@ -53,25 +53,28 @@ print(f"Status: \n\
 
 
 
-
-model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
-tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME)
-
 if not os.path.exists(MODELS_DIR + MODEL_NAME):
-    print("Сохраняю модель...")
+    print("Скачиваю и сохраняю модель...")
+    model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
+    tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME)
+
     model.save_pretrained(MODELS_DIR + MODEL_NAME, from_pt=True) # сохранение модели
     tokenizer.save_pretrained(MODELS_DIR + MODEL_NAME) # сохранение токенизатора
 else:
-    print(f"Модель по пути {MODELS_DIR + MODEL_NAME} уже была сохранена ранее!")
+    print(f"Модель по пути {MODELS_DIR + MODEL_NAME} уже была сохранена ранее, используем её!")
+    model = T5ForConditionalGeneration.from_pretrained(MODELS_DIR + MODEL_NAME)
+    tokenizer = T5Tokenizer.from_pretrained(MODELS_DIR + MODEL_NAME)
 
 
 
-dataset = load_dataset(DATASET_NAME_HF, name="eng_Latn-rus_Cyrl") # скачивание датасета, name — название subset_а с HuggingFace
+
 if not os.path.exists(DATA_DIR + DATASET_NAME_LOC):
-    print("Сохраняю скаченный датасет...")
+    print("Скачиваю и сохраняю датасет...")
+    dataset = load_dataset(DATASET_NAME_HF, name="eng_Latn-rus_Cyrl") # скачивание датасета, name — название subset_а с HuggingFace
     dataset.save_to_disk(DATA_DIR + DATASET_NAME_LOC) # локальное сохранение датасета (в формате arrow)
 else:
-    print(f"Датасет по пути {DATA_DIR + DATASET_NAME_LOC} уже был сохранён ранее!")
+    print(f"Датасет по пути {DATA_DIR + DATASET_NAME_LOC} уже был сохранён ранее, используем его!")
+    dataset = load_from_disk(DATA_DIR + DATASET_NAME_LOC)
 
 
 def preprocess_function(data: Dataset, random_state=RANDOM_STATE):
@@ -86,17 +89,19 @@ def preprocess_function(data: Dataset, random_state=RANDOM_STATE):
     model_inputs = tokenizer(data["new_src"], text_target=data["new_tgt"], max_length=MAX_SEQUENCE_LEN, return_tensors="pt", truncation=True, padding=True)
     return model_inputs
 
-dataset = dataset.map(preprocess_function, batched=True)
-dataset = dataset.remove_columns(["provenance", "src", "tgt"]) # удаление ненужной колонки
-dataset = dataset.rename_column("new_src", "src") # переименовываем колонку
-dataset = dataset.rename_column("new_tgt", "tgt") # переименовываем колонку
-dataset = dataset["train"].train_test_split(test_size=TEST_SIZE, shuffle=True, seed=RANDOM_STATE) # разбиение датасета на тестовую и обучающую выборки
-
 if not os.path.exists(DATA_DIR + DATASET_NAME_LOC + "_t5_processed"):
-    print("Сохраняю обработанный датасет...")
+    print("Обрабатываю датасет и сохраняю...")
+    dataset = dataset.map(preprocess_function, batched=True)
+    dataset = dataset.remove_columns(["provenance", "src", "tgt"]) # удаление ненужной колонки
+    dataset = dataset.rename_column("new_src", "src") # переименовываем колонку
+    dataset = dataset.rename_column("new_tgt", "tgt") # переименовываем колонку
+    dataset = dataset["train"].train_test_split(test_size=TEST_SIZE, shuffle=True, seed=RANDOM_STATE) # разбиение датасета на тестовую и обучающую выборки
+
     dataset.save_to_disk(DATA_DIR + DATASET_NAME_LOC + "_t5_processed") # локальное сохранение датасета (в формате arrow)
 else:
-    print(f"Датасет по пути {DATA_DIR + DATASET_NAME_LOC + '_t5_processed'} уже был сохранён ранее!")
+    print(f"Датасет по пути {DATA_DIR + DATASET_NAME_LOC + '_t5_processed'} уже был сохранён ранее, используем его!")
+    dataset = load_from_disk(DATA_DIR + DATASET_NAME_LOC)
+
 
 dataset["train"] = dataset["train"].select(range(TRAIN_MAX_SAMPLES))
 dataset["test"] = dataset["test"].select(range(TEST_MAX_SAMPLES))
@@ -107,11 +112,11 @@ dataset["test"] = dataset["test"].select(range(TEST_MAX_SAMPLES))
 vocab_len = tokenizer.vocab_size # размер словаря
 print(f"Размер словаря токенизатора: {vocab_len}, с учётом особых токенов: {len(tokenizer.get_vocab())}.")
 
-word2id = {} # словарь соответствия слова его id_шнику
-id2word = {} # словарь соответствия id_шника слову
-for word, id in tokenizer.get_vocab().items(): # идём по словам в словаре
-    word2id[word] = id # заполняем словарь соответствия слова его id_шнику
-    id2word[id] = word # заполняем словарь соответствия id_шника слову
+# word2id = {} # словарь соответствия слова его id_шнику
+# id2word = {} # словарь соответствия id_шника слову
+# for word, id in tokenizer.get_vocab().items(): # идём по словам в словаре
+#     word2id[word] = id # заполняем словарь соответствия слова его id_шнику
+#     id2word[id] = word # заполняем словарь соответствия id_шника слову
 
 
 
