@@ -100,7 +100,7 @@ if not os.path.exists(DATA_DIR + DATASET_NAME_LOC + "_t5_processed"):
     dataset.save_to_disk(DATA_DIR + DATASET_NAME_LOC + "_t5_processed") # локальное сохранение датасета (в формате arrow)
 else:
     print(f"Датасет по пути {DATA_DIR + DATASET_NAME_LOC + '_t5_processed'} уже был сохранён ранее, используем его!")
-    dataset = load_from_disk(DATA_DIR + DATASET_NAME_LOC)
+    dataset = load_from_disk(DATA_DIR + DATASET_NAME_LOC + "_t5_processed")
 
 
 dataset["train"] = dataset["train"].select(range(TRAIN_MAX_SAMPLES))
