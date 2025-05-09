@@ -52,7 +52,7 @@ print(f"Вес модели: {size_model / 8e6:.2f} MB")
 def prune_model(model, pruning_amount=0.2): # pruning_amount — Controls the fraction of weights to prune (e.g., 0.2 means 20% of the weights will be pruned).
     print(f"Прунинг {pruning_amount * 100}% параметров модели.")
     for name, module in model.named_modules():
-        if isinstance(module, torch.nn.Linear):
+        if isinstance(module, torch.nn.Linear) and name != "lm_head":
             prune.ln_structured(module, name='weight', n=2, dim=0, amount=pruning_amount)
             # prune.random_unstructured(module, name="weight", amount=pruning_amount)
             # прунинг создаёт weight_orig и weight_mask параметры, в которые складирует оригинальные веса и максу из нулей и единиц прунинга, комбинация же самой маски и изначальных весов записывается в атрибут weight (не настоящие веса до вызова prune.remove)
