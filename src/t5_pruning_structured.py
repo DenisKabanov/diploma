@@ -78,9 +78,9 @@ print(output)
 
 
 
-if not os.path.exists(MODELS_DIR + f"t5_pruned_structured{PRUNE_AMOUNT}"):
+if not os.path.exists(MODELS_DIR + f"t5_pruned_structured_{PRUNE_AMOUNT}"):
     print("Сохраняю модель...")
-    model.save_pretrained(MODELS_DIR + f"t5_pruned_structured{PRUNE_AMOUNT}", from_pt=True) # сохранение модели
-    tokenizer.save_pretrained(MODELS_DIR + f"t5_pruned_structured{PRUNE_AMOUNT}") # сохранение токенизатора
+    model.save_pretrained(MODELS_DIR + f"t5_pruned_structured_{PRUNE_AMOUNT}", from_pt=True) # сохранение модели
+    tokenizer.save_pretrained(MODELS_DIR + f"t5_pruned_structured_{PRUNE_AMOUNT}") # сохранение токенизатора
 else:
-    print(f"Модель по пути {MODELS_DIR + f't5_pruned_structured{PRUNE_AMOUNT}'} уже была сохранена ранее!")
+    print(f"Модель по пути {MODELS_DIR + f't5_pruned_structured_{PRUNE_AMOUNT}'} уже была сохранена ранее!")
