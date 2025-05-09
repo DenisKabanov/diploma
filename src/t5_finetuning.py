@@ -4,7 +4,7 @@ import pandas as pd # для удобной работы с датасетом
 import random as random # для работы со случайностью
 from dotenv import load_dotenv # для загрузки переменных окружения
 
-from datasets import Dataset, load_dataset # для работы с HuggingFace датасетами
+from datasets import Dataset, load_dataset, load_from_disk # для работы с HuggingFace датасетами
 
 import torch # для работы с моделями torch
 from transformers import T5ForConditionalGeneration, T5Tokenizer # для работы с T5 моделью
@@ -65,26 +65,32 @@ print(f"Status: \n\
 
 
 
+if not os.path.exists(MODELS_DIR + MODEL_NAME):
+    print("Скачиваю и сохраняю модель...")
+    model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
+    tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME)
 
-model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
-model.save_pretrained(MODELS_DIR + MODEL_NAME, from_pt=True) # сохранение модели
+    model.save_pretrained(MODELS_DIR + MODEL_NAME, from_pt=True) # сохранение модели
+    tokenizer.save_pretrained(MODELS_DIR + MODEL_NAME) # сохранение токенизатора
+else:
+    print(f"Модель по пути {MODELS_DIR + MODEL_NAME} уже была сохранена ранее, используем её!")
+    model = T5ForConditionalGeneration.from_pretrained(MODELS_DIR + MODEL_NAME)
+    tokenizer = T5Tokenizer.from_pretrained(MODELS_DIR + MODEL_NAME)
 
 params_all = sum(p.numel() for p in model.parameters())
 params_trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
 print(f"Число обучаемых параметров: {params_trainable} из {params_all}, то есть ~{params_trainable / params_all * 100:.2f}%.") # считаем число параметров
 
-tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME)
-tokenizer.save_pretrained(MODELS_DIR + MODEL_NAME) # сохранение токенизатора
 
 
 
-
-dataset = load_dataset(DATASET_NAME_HF, name="eng_Latn-rus_Cyrl") # скачивание датасета, name — название subset_а с HuggingFace
 if not os.path.exists(DATA_DIR + DATASET_NAME_LOC):
-    print("Сохраняю скаченный датасет...")
+    print("Скачиваю и сохраняю датасет...")
+    dataset = load_dataset(DATASET_NAME_HF, name="eng_Latn-rus_Cyrl") # скачивание датасета, name — название subset_а с HuggingFace
     dataset.save_to_disk(DATA_DIR + DATASET_NAME_LOC) # локальное сохранение датасета (в формате arrow)
 else:
-    print(f"Датасет по пути {DATA_DIR + DATASET_NAME_LOC} уже был сохранён ранее!")
+    print(f"Датасет по пути {DATA_DIR + DATASET_NAME_LOC} уже был сохранён ранее, используем его!")
+    dataset = load_from_disk(DATA_DIR + DATASET_NAME_LOC)
 
 def preprocess_function(data: Dataset, random_state=RANDOM_STATE):
     random.seed(random_state) # Set the random number generator to a fixed sequence.
@@ -98,17 +104,19 @@ def preprocess_function(data: Dataset, random_state=RANDOM_STATE):
     model_inputs = tokenizer(data["new_src"], text_target=data["new_tgt"], max_length=MAX_SEQUENCE_LEN, return_tensors="pt", truncation=True, padding=True)
     return model_inputs
 
-dataset = dataset.map(preprocess_function, batched=True)
-dataset = dataset.remove_columns(["provenance", "src", "tgt"]) # удаление ненужной колонки
-dataset = dataset.rename_column("new_src", "src") # переименовываем колонку
-dataset = dataset.rename_column("new_tgt", "tgt") # переименовываем колонку
-dataset = dataset["train"].train_test_split(test_size=TEST_SIZE, shuffle=True, seed=RANDOM_STATE) # разбиение датасета на тестовую и обучающую выборки
-
 if not os.path.exists(DATA_DIR + DATASET_NAME_LOC + "_t5_processed"):
-    print("Сохраняю обработанный датасет...")
+    print("Обрабатываю датасет и сохраняю...")
+    dataset = dataset.map(preprocess_function, batched=True)
+    dataset = dataset.remove_columns(["provenance", "src", "tgt"]) # удаление ненужной колонки
+    dataset = dataset.rename_column("new_src", "src") # переименовываем колонку
+    dataset = dataset.rename_column("new_tgt", "tgt") # переименовываем колонку
+    dataset = dataset["train"].train_test_split(test_size=TEST_SIZE, shuffle=True, seed=RANDOM_STATE) # разбиение датасета на тестовую и обучающую выборки
+
     dataset.save_to_disk(DATA_DIR + DATASET_NAME_LOC + "_t5_processed") # локальное сохранение датасета (в формате arrow)
 else:
-    print(f"Датасет по пути {DATA_DIR + DATASET_NAME_LOC + '_t5_processed'} уже был сохранён ранее!")
+    print(f"Датасет по пути {DATA_DIR + DATASET_NAME_LOC + '_t5_processed'} уже был сохранён ранее, используем его!")
+    dataset = load_from_disk(DATA_DIR + DATASET_NAME_LOC + "_t5_processed")
+
 
 dataset["train"] = dataset["train"].select(range(TRAIN_MAX_SAMPLES))
 dataset["test"] = dataset["test"].select(range(TEST_MAX_SAMPLES))
@@ -245,7 +253,7 @@ def plot_history(history):
     axes[2].grid(True) # отображение сетки на графике
     axes[2].legend() # отображение подписей графиков
 
-    plt.savefig(f"{RESULTS_DIR}{MODEL_NAME}/graph.png", dpi="figure", bbox_inches="tight", facecolor="white") # сохранение графика
+    plt.savefig(f"{RESULTS_DIR}{MODEL_NAME}_finetuned/graph.png", dpi="figure", bbox_inches="tight", facecolor="white") # сохранение графика
     plt.show() # показ фигуры
 
 plot_history(history)
