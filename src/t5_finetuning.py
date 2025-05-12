@@ -211,7 +211,7 @@ trainer.tokenizer.save_pretrained(MODELS_DIR + MODEL_NAME + "_finetuned", from_p
 
 history = parse_log_history(trainer.state.log_history)
 history = pd.DataFrame(history[1]) # преобразовываем историю обучения в DataFrame (данные на самом деле про test часть, хоть в них и не указано 'eval_')
-with open(f"{RESULTS_DIR}{MODEL_NAME}/history.json", mode='w', encoding='utf-8') as file:
+with open(f"{RESULTS_DIR}{MODEL_NAME}_finetuned/history.json", mode='w', encoding='utf-8') as file:
     history.to_json(file, orient='records', lines=True, force_ascii=False)
 
 def plot_history(history):
