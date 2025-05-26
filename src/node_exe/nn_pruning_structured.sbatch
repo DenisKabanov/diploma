@@ -12,4 +12,4 @@ module load CUDA/11.4 Python/Anaconda       # Загрузка модулей
 
 conda activate nn_finetuning
 
-python ./src/t5_pruning_structured.py
+python ../t5_pruning_structured.py
