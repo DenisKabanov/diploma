@@ -1,0 +1,61 @@
+Status: 
+      DATA_DIR: ./data/
+      RESULTS_DIR: ./results/
+      MODELS_DIR: ./models/
+      MODEL_NAME: t5_pruned_structured_0.2
+      DATASET_NAME_HF: aiana94/polynews-parallel
+      DATASET_NAME_LOC: polynews-parallel
+      MAX_SEQUENCE_LEN: 256
+      FP16: False
+      RANDOM_STATE: 42
+      TEST_SIZE: 0.2
+      TEST_MAX_SAMPLES: 35289
+      TRAIN_MAX_SAMPLES: 141152
+      EPOCHS: 20
+      EPOCHS_PATIENCE: 3
+      LEARNING_RATE: 1e-05
+      BATCH_SIZE: 16
+      DEVICE: cuda:0
+      
+Модель по пути ./models/t5_pruned_structured_0.2 уже была сохранена ранее, используем её!
+Число обучаемых параметров: 110724480 из 110724480, то есть ~100.00%.
+Датасет по пути ./data/polynews-parallel уже был сохранён ранее, используем его!
+Датасет по пути ./data/polynews-parallel_t5_processed уже был сохранён ранее, используем его!
+{'loss': 0.4791, 'grad_norm': 0.8743862509727478, 'learning_rate': 9.5e-06, 'epoch': 1.0}
+{'eval_loss': 0.3904575705528259, 'eval_bleu': 0.23866, 'eval_mean_len': 28.37933, 'eval_runtime': 8948.2395, 'eval_samples_per_second': 3.944, 'eval_steps_per_second': 0.247, 'epoch': 1.0}
+{'loss': 0.4236, 'grad_norm': 0.6483073830604553, 'learning_rate': 9e-06, 'epoch': 2.0}
+{'eval_loss': 0.37794503569602966, 'eval_bleu': 0.24728, 'eval_mean_len': 28.58174, 'eval_runtime': 7623.9488, 'eval_samples_per_second': 4.629, 'eval_steps_per_second': 0.289, 'epoch': 2.0}
+{'loss': 0.4047, 'grad_norm': 0.8423563241958618, 'learning_rate': 8.5e-06, 'epoch': 3.0}
+{'eval_loss': 0.3704412281513214, 'eval_bleu': 0.25095, 'eval_mean_len': 28.49004, 'eval_runtime': 9115.4723, 'eval_samples_per_second': 3.871, 'eval_steps_per_second': 0.242, 'epoch': 3.0}
+{'loss': 0.393, 'grad_norm': 0.6690273880958557, 'learning_rate': 8.000000000000001e-06, 'epoch': 4.0}
+{'eval_loss': 0.3662464916706085, 'eval_bleu': 0.255, 'eval_mean_len': 28.61362, 'eval_runtime': 9347.9638, 'eval_samples_per_second': 3.775, 'eval_steps_per_second': 0.236, 'epoch': 4.0}
+{'loss': 0.3843, 'grad_norm': 0.78770911693573, 'learning_rate': 7.500000000000001e-06, 'epoch': 5.0}
+{'eval_loss': 0.3630107641220093, 'eval_bleu': 0.25741, 'eval_mean_len': 28.63212, 'eval_runtime': 9250.3392, 'eval_samples_per_second': 3.815, 'eval_steps_per_second': 0.238, 'epoch': 5.0}
+{'loss': 0.3773, 'grad_norm': 0.7237271070480347, 'learning_rate': 7e-06, 'epoch': 6.0}
+{'eval_loss': 0.3614683151245117, 'eval_bleu': 0.25688, 'eval_mean_len': 28.51277, 'eval_runtime': 8980.692, 'eval_samples_per_second': 3.929, 'eval_steps_per_second': 0.246, 'epoch': 6.0}
+{'loss': 0.372, 'grad_norm': 0.727742612361908, 'learning_rate': 6.5000000000000004e-06, 'epoch': 7.0}
+{'eval_loss': 0.3597152531147003, 'eval_bleu': 0.25942, 'eval_mean_len': 28.63904, 'eval_runtime': 9401.897, 'eval_samples_per_second': 3.753, 'eval_steps_per_second': 0.235, 'epoch': 7.0}
+{'loss': 0.3673, 'grad_norm': 0.639109194278717, 'learning_rate': 6e-06, 'epoch': 8.0}
+{'eval_loss': 0.35812103748321533, 'eval_bleu': 0.26047, 'eval_mean_len': 28.66729, 'eval_runtime': 9621.5656, 'eval_samples_per_second': 3.668, 'eval_steps_per_second': 0.229, 'epoch': 8.0}
+{'loss': 0.3634, 'grad_norm': 0.4798763394355774, 'learning_rate': 5.500000000000001e-06, 'epoch': 9.0}
+{'eval_loss': 0.35756716132164, 'eval_bleu': 0.26228, 'eval_mean_len': 28.68866, 'eval_runtime': 9382.2418, 'eval_samples_per_second': 3.761, 'eval_steps_per_second': 0.235, 'epoch': 9.0}
+{'loss': 0.3599, 'grad_norm': 0.6266982555389404, 'learning_rate': 5e-06, 'epoch': 10.0}
+{'eval_loss': 0.3568095862865448, 'eval_bleu': 0.26223, 'eval_mean_len': 28.65539, 'eval_runtime': 8916.1706, 'eval_samples_per_second': 3.958, 'eval_steps_per_second': 0.247, 'epoch': 10.0}
+{'loss': 0.3573, 'grad_norm': 0.6654800772666931, 'learning_rate': 4.5e-06, 'epoch': 11.0}
+{'eval_loss': 0.35517171025276184, 'eval_bleu': 0.26252, 'eval_mean_len': 28.71178, 'eval_runtime': 8922.0623, 'eval_samples_per_second': 3.955, 'eval_steps_per_second': 0.247, 'epoch': 11.0}
+{'loss': 0.3546, 'grad_norm': 0.8518121242523193, 'learning_rate': 4.000000000000001e-06, 'epoch': 12.0}
+{'eval_loss': 0.35523268580436707, 'eval_bleu': 0.26292, 'eval_mean_len': 28.6502, 'eval_runtime': 9111.4717, 'eval_samples_per_second': 3.873, 'eval_steps_per_second': 0.242, 'epoch': 12.0}
+{'loss': 0.3525, 'grad_norm': 0.7768262028694153, 'learning_rate': 3.5e-06, 'epoch': 13.0}
+{'eval_loss': 0.35387617349624634, 'eval_bleu': 0.26284, 'eval_mean_len': 28.64374, 'eval_runtime': 8932.1104, 'eval_samples_per_second': 3.951, 'eval_steps_per_second': 0.247, 'epoch': 13.0}
+{'loss': 0.3508, 'grad_norm': 0.7946031093597412, 'learning_rate': 3e-06, 'epoch': 14.0}
+{'eval_loss': 0.35383906960487366, 'eval_bleu': 0.26384, 'eval_mean_len': 28.72178, 'eval_runtime': 8914.2659, 'eval_samples_per_second': 3.959, 'eval_steps_per_second': 0.247, 'epoch': 14.0}
+{'loss': 0.3493, 'grad_norm': 0.8025059700012207, 'learning_rate': 2.5e-06, 'epoch': 15.0}
+{'eval_loss': 0.35358235239982605, 'eval_bleu': 0.26435, 'eval_mean_len': 28.68976, 'eval_runtime': 8243.0296, 'eval_samples_per_second': 4.281, 'eval_steps_per_second': 0.268, 'epoch': 15.0}
+{'loss': 0.3478, 'grad_norm': 0.6795551776885986, 'learning_rate': 2.0000000000000003e-06, 'epoch': 16.0}
+{'eval_loss': 0.3535919189453125, 'eval_bleu': 0.26392, 'eval_mean_len': 28.66383, 'eval_runtime': 7653.7634, 'eval_samples_per_second': 4.611, 'eval_steps_per_second': 0.288, 'epoch': 16.0}
+{'loss': 0.3472, 'grad_norm': 0.7072914242744446, 'learning_rate': 1.5e-06, 'epoch': 17.0}
+{'eval_loss': 0.352908730506897, 'eval_bleu': 0.26388, 'eval_mean_len': 28.70829, 'eval_runtime': 8923.2101, 'eval_samples_per_second': 3.955, 'eval_steps_per_second': 0.247, 'epoch': 17.0}
+{'loss': 0.3465, 'grad_norm': 0.5732854604721069, 'learning_rate': 1.0000000000000002e-06, 'epoch': 18.0}
+{'eval_loss': 0.35310134291648865, 'eval_bleu': 0.26397, 'eval_mean_len': 28.69744, 'eval_runtime': 8813.1839, 'eval_samples_per_second': 4.004, 'eval_steps_per_second': 0.25, 'epoch': 18.0}
+{'train_runtime': 207899.4367, 'train_samples_per_second': 13.579, 'train_steps_per_second': 0.849, 'train_loss': 0.37393328768711115, 'epoch': 18.0}
+Время, затраченное на обучение: 207899.64002275467 секунд.

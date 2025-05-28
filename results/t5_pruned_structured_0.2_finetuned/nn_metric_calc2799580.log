@@ -1,0 +1,20 @@
+Status: 
+      DATA_DIR: ./data/
+      RESULTS_DIR: ./results/
+      MODELS_DIR: ./models/
+      MODEL_NAME: t5_pruned_structured_0.2_finetuned
+      DATASET_NAME_HF: aiana94/polynews-parallel
+      DATASET_NAME_LOC: polynews-parallel
+      MAX_SEQUENCE_LEN: 256
+      RANDOM_STATE: 42
+      TEST_SIZE: 0.2
+      TEST_MAX_SAMPLES: 35289
+      TRAIN_MAX_SAMPLES: 141152
+      DEVICE: cpu
+      
+Модель по пути ./models/t5_pruned_structured_0.2_finetuned уже была сохранена ранее, используем её!
+Датасет по пути ./data/polynews-parallel уже был сохранён ранее, используем его!
+Датасет по пути ./data/polynews-parallel_t5_processed уже был сохранён ранее, используем его!
+Размер словаря токенизатора: 65000, с учётом особых токенов: 65100.
+Значение метрики BLEU: 0.26402224511027517
+Затрачиваемое время увеличивается, в среднем, на 0.03319 секунд за каждый новый токен, при этом модель работает не менее 0.02051 секунд.
