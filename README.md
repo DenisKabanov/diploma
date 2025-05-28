@@ -72,7 +72,7 @@ pip install --user -r requirements.txt
 ```
 
 ## Setup:
-Перед запуском любого скрипта, как через `python ./src/<script_name>.py` , так и через `sbatch ./src/node_exe/<script_name>.sbatch` нужно провести его настройку в файле `.env`.
+Перед запуском любого скрипта, как через `python ./src/<script_name>.py` , так и через `sbatch ./src/node_exe/<script_name>.sbatch`, нужно провести его настройку в файле `.env`.
 
 Для запуска вычислений на класете используются bash-скрипты из папки `./src/node_exe/`:
 ```
