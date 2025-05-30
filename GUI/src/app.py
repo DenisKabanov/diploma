@@ -1,6 +1,9 @@
 import streamlit as st
+import pandas as pd
+import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import os
 from src.api.model_integration import translate
 from src.utils.prompt_templates import get_translation_prompt
@@ -52,13 +55,7 @@ def setup_page():
 
 
 def main():
-    global model, tokenizer, last_model, last_runtime
     setup_page()
-
-    for key in ["tokens_count", "latency"]:
-        if key not in st.session_state.keys(): # если ключа нет в словаре сессии
-            st.session_state[key] = [] # создаём пустой список под данные
-
 
     # Header section with title and subtitle
     st.markdown(
@@ -72,8 +69,8 @@ def main():
     )
 
 
-    # logo
-    st.markdown(
+    # лого
+    st.markdown( 
         fr"""
         <div class="logo-container">
             <img src="https://media.istockphoto.com/id/493553442/ru/%D1%84%D0%BE%D1%82%D0%BE/%D0%B3%D0%BB%D0%BE%D0%B1%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B5-%D0%BA%D0%BE%D0%BC%D0%BC%D1%83%D0%BD%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D0%B8-%D0%BC%D0%B5%D0%B6%D0%B4%D1%83%D0%BD%D0%B0%D1%80%D0%BE%D0%B4%D0%BD%D1%8B%D0%B9-%D0%BE%D0%B1%D0%BC%D0%B5%D0%BD-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D1%8F%D0%BC%D0%B8-%D0%B8-%D0%BF%D0%B5%D1%80%D0%B5%D0%B2%D0%BE%D0%B4%D0%B0-%D0%BA%D0%BE%D0%BD%D1%86%D0%B5%D0%BF%D1%86%D0%B8%D0%B8.jpg?s=612x612&w=0&k=20&c=Hv3FB7JqEWM_eCdKdzagbeWFf3V2NUdWKkAA2R0JH-o=" alt="Logo">
@@ -83,24 +80,28 @@ def main():
     )
 
 
-    # Sidebar for settings
-    with st.sidebar:
+    with st.sidebar: # боковая панель для настроек
         st.title("⚙️Настройки")
+        print(f"Модель: {st.session_state['last_model']}, рантайм: {st.session_state['last_runtime']}")
+
+
+        last_model = st.session_state["last_model"]
+        last_runtime = st.session_state["last_runtime"]
 
         model_name = st.selectbox("Выбор модели", Config.AVAILABLE_MODELS)
         model_path = Config.REAL_MODELS_NAMES[model_name]
         if last_model != model_name: # проверка, что нужная модель ещё не загружена
             if not os.path.exists(Config.MODELS_DIR + model_path):
                 print(f"Скачиваю и сохраняю модель {model_name}...")
-                model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
-                tokenizer = AutoTokenizer.from_pretrained(model_path)
+                st.session_state["model"] = AutoModelForSeq2SeqLM.from_pretrained(model_path)
+                st.session_state["tokenizer"] = AutoTokenizer.from_pretrained(model_path)
 
-                model.save_pretrained(Config.MODELS_DIR + model_path, from_pt=True) # сохранение модели
-                tokenizer.save_pretrained(Config.MODELS_DIR + model_path) # сохранение токенизатора
+                st.session_state["model"].save_pretrained(Config.MODELS_DIR + model_path, from_pt=True) # сохранение модели
+                st.session_state["tokenizer"].save_pretrained(Config.MODELS_DIR + model_path) # сохранение токенизатора
             else:
                 print(f"Загружаю сохранённую модель {model_name}...")
-                model = AutoModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path)
-                tokenizer = AutoTokenizer.from_pretrained(Config.MODELS_DIR + model_path)
+                st.session_state["model"] = AutoModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path)
+                st.session_state["tokenizer"] = AutoTokenizer.from_pretrained(Config.MODELS_DIR + model_path)
             last_model = model_name
             last_runtime = "PyTorch"
             
@@ -110,23 +111,23 @@ def main():
 
             if runtime == "PyTorch":
                 print(f"Найдена уже сохранённая вариация модели в рантайме {runtime}...")
-                model = AutoModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path)
+                st.session_state["model"] = AutoModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path)
             # elif runtime == "ExecuTorch":
-            #     model = ExecuTorchModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path, export=True, recipe="xnnpack", attn_implementation="custom_sdpa") # export — для моделей трансформеров с версии optimum>=2.0, from_transformers — для optimum<2.0
+            #     st.session_state["model"] = ExecuTorchModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path, export=True, recipe="xnnpack", attn_implementation="custom_sdpa") # export — для моделей трансформеров с версии optimum>=2.0, from_transformers — для optimum<2.0
             elif runtime == "ONNX":
                 if os.path.exists(Config.MODELS_DIR + model_path + "_ONNX"):
                     print(f"Найдена уже сохранённая вариация модели в рантайме {runtime}...")
-                    model = ORTModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path + "_ONNX") # export — для моделей трансформеров с версии optimum>=2.0, from_transformers — для optimum<2.0
+                    st.session_state["model"] = ORTModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path + "_ONNX") # export — для моделей трансформеров с версии optimum>=2.0, from_transformers — для optimum<2.0
                 else:
-                    model = ORTModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path, export=True) # export — для моделей трансформеров с версии optimum>=2.0, from_transformers — для optimum<2.0
-                    model.save_pretrained(Config.MODELS_DIR + model_path + "_ONNX")
+                    st.session_state["model"] = ORTModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path, export=True) # export — для моделей трансформеров с версии optimum>=2.0, from_transformers — для optimum<2.0
+                    st.session_state["model"].save_pretrained(Config.MODELS_DIR + model_path + "_ONNX")
             elif runtime == "openVINO":
                 if os.path.exists(Config.MODELS_DIR + model_path + "_openVINO"):
                     print(f"Найдена уже сохранённая вариация модели в рантайме {runtime}...")
-                    model = OVModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path + "_openVINO") # export — для моделей трансформеров с версии optimum>=2.0, from_transformers — для optimum<2.0
+                    st.session_state["model"] = OVModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path + "_openVINO") # export — для моделей трансформеров с версии optimum>=2.0, from_transformers — для optimum<2.0
                 else:
-                    model = OVModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path, export=True) # export — для моделей трансформеров с версии optimum>=2.0, from_transformers — для optimum<2.0
-                    model.save_pretrained(Config.MODELS_DIR + model_path + "_openVINO")
+                    st.session_state["model"] = OVModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path, export=True) # export — для моделей трансформеров с версии optimum>=2.0, from_transformers — для optimum<2.0
+                    st.session_state["model"].save_pretrained(Config.MODELS_DIR + model_path + "_openVINO")
 
             last_runtime = runtime # обновляем последний рантайм
 
@@ -134,10 +135,12 @@ def main():
         source_lang = st.selectbox("Язык оригинала", Config.SOURCE_LANG)
         target_lang = st.selectbox("Целевой язык", Config.TARGET_LANG)
 
+        # Обновляем имена используемых модели и рантайма
+        st.session_state["last_model"] = last_model
+        st.session_state["last_runtime"] = last_runtime
 
-    # Main container with border
-    main_container = st.container(border=True)
 
+    main_container = st.container(border=True) # основной контейнер для текста и перевода
 
     with main_container:
         st.header("Введите текст для перевода")
@@ -158,7 +161,15 @@ def main():
                 )
 
                 translation_prompt = get_translation_prompt(text, model_name, source_lang, target_lang)
-                translation, latency, tokens_count = translate(translation_prompt, model, tokenizer)
+                translation, latency, tokens_count = translate(translation_prompt, st.session_state["model"], st.session_state["tokenizer"])
+                
+                last_model = st.session_state["last_model"]
+                last_runtime = st.session_state["last_runtime"]
+                records_count = len(st.session_state["metrics"]) # количество уже сделанных переводов
+                
+                new_row = {"Model name": last_model, "Runtime": last_runtime, "Tokens count": tokens_count, "Latency": latency, "Color": colors[last_runtime]} # новая запись про метрики
+                st.session_state["metrics"].loc[records_count] = new_row # запоминаем метрики
+                metrics = st.session_state["metrics"]
 
 
                 # Tab 1: Translation
@@ -176,31 +187,72 @@ def main():
                 # Tab 2: Analytics
                 with tab2:
                     st.subheader("Анализ эффективности")
-                    efficiency_container = st.empty()
+                    container_metrics = st.container(border=False) # placeholder (контейнер) для данных с фиксированной позицией (и рамкой border=True)
+
+                    holder_approx = st.empty() # placeholder (контейнер) для данных с фиксированной позицией (и рамкой border=True)
 
                     if isinstance(translation, str):
-                        st.session_state["latency"].append(latency)
-                        st.session_state["tokens_count"].append(tokens_count)
+                        columns_models = container_metrics.columns(spec=len(metrics["Model name"].unique())) # делим контейнер на spec колонок (или в пропорции spec)
+                        holders_models = {}
+
+
+                        approximations = {}
+                        for i, column in enumerate(columns_models):
+                            model_name_ = metrics["Model name"].unique()[i]
+                            column.title(f"Модель {model_name_}") # добавление заголовка к контейнеру
+                            holders_models[model_name_] = column.empty() # пустой подконтейнер, что может вмещать только один объект (для самообновления графиков)
+
+                            plt.figure(figsize=(10, 5))
+                            plt.ylim(0, metrics["Latency"].max() + 1)
+                            data = metrics[metrics["Model name"] == model_name_]
+
+                            for runtime_name_ in data["Runtime"].unique():
+                                data_ = data[data["Runtime"] == runtime_name_]
+                                a, b = np.polyfit(data_["Tokens count"], data_["Latency"], deg=1) # считаем линейную аппроксимацию (deg=1)
+                                approximations[f"{model_name_} - {runtime_name_}"] = [a, b]
                         
-                        plt.figure(figsize=(15, 5))
-                        sns.boxplot(x=st.session_state["tokens_count"], y=st.session_state["latency"], native_scale=True, showfliers=False) # строим "ящики с усами", showfliers — отображать ли выбросы, native_scale — воспринимать ли ось X как непрерывную (а не категориальную)
+                            sns.boxplot(data=data, x="Tokens count", y="Latency", hue="Runtime", palette=colors, native_scale=True, showfliers=False, width=0.5) # строим "ящики с усами", showfliers — отображать ли выбросы, native_scale — воспринимать ли ось X как непрерывную (а не категориальную)
+
+                            plt.xticks(rotation=45, ha='right') # поворот на 45 градусов подписей под осью OX (ha='right' ~ правый конец соответствует колонке)
+                            plt.title("Зависимость времени перевода от размера текста") # название фигуры
+                            plt.xlabel("Количество токенов") # подпись по оси x
+                            plt.ylabel("Задержка перевода (latency, sec)") # подпись по оси y
+                            holders_models[model_name_].pyplot(plt) # создаём линейный график на основе данных в словаре session_state
+                            plt.close() # отключает повторное отображение графика из-за наложения их в Matplotlib
+
+                        
+                        plt.figure(figsize=(25,10)) # задание размера фигуры
+                        x = np.linspace(1, 256)
+                        for variation in approximations.keys():
+                            a, b = approximations[variation]
+                            y = a * x + b
+                            sns.lineplot(x=x, y=y, label=variation, linewidth=2.0)
+                        plt.axis([10, 256, 0, 20])
                         plt.xticks(rotation=45, ha='right') # поворот на 45 градусов подписей под осью OX (ha='right' ~ правый конец соответствует колонке)
-                        plt.title("Зависимость времени перевода от размера текста") # название фигуры
+                        plt.title("Зависимость времени перевода от количества токенов") # название фигуры
                         plt.xlabel("Количество токенов") # подпись по оси x
                         plt.ylabel("Задержка перевода (latency, sec)") # подпись по оси y
-                        efficiency_container.pyplot(plt) # создаём линейный график на основе данных в словаре session_state
+                        holder_approx.pyplot(plt) # создаём линейный график на основе данных в словаре session_state
+                        plt.close() # отключает повторное отображение графика из-за наложения их в Matplotlib
+                    
                     else:
                         error_message = f"Error: {str(translation)}"
-                        efficiency_container.error(error_message)
+                        container_metrics.error(error_message)
 
 
-    # Sidebar for additional information and feedback
-    with st.sidebar:
+    with st.sidebar: # боковая панель для дополнительной информации
         st.subheader("Информация")
         st.info("Это приложение является демонстрационной версией основных возможностей.")
 
+# изначальные объекты модели и токенизатор не определены
+st.session_state["model"] = None
+st.session_state["tokenizer"] = None
+st.session_state["last_model"] = None
+st.session_state["last_runtime"] = None
+st.session_state["metrics"] = pd.DataFrame(columns=["Model name", "Runtime", "Tokens count", "Latency", "Color"])
 
-model, tokenizer, = None, None # изначальные объекты модели и токенизатор не существуют
-last_model, last_runtime =  None, "PyTorch"
+# colors = {"PyTorch": "blue", "ONNX": "orange", "openVINO": "green"}
+colors = {"PyTorch": sns.color_palette()[0], "ONNX": sns.color_palette()[1], "openVINO": sns.color_palette()[2]}
+
 if __name__ == "__main__":
     main()
