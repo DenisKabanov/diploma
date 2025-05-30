@@ -1,11 +1,16 @@
 import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
+import os
 from src.api.model_integration import translate
 from src.utils.prompt_templates import get_translation_prompt
 from config.config import Config
 
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer # для работы моделями
+# from optimum.executorch import ExecuTorchModelForSeq2SeqLM # ExecuTorch runtime
+from optimum.onnxruntime import ORTModelForSeq2SeqLM # ONNX runtime
+os.environ["PATH"] += r";c:\Users\User\anaconda3\envs\gpu\Lib\site-packages\openvino\libs"
+from optimum.intel.openvino import OVModelForSeq2SeqLM # openVINO runtime
 
 def setup_page():
     """
@@ -47,7 +52,7 @@ def setup_page():
 
 
 def main():
-    global model, tokenizer
+    global model, tokenizer, last_model, last_runtime
     setup_page()
 
     for key in ["tokens_count", "latency"]:
@@ -81,12 +86,50 @@ def main():
     # Sidebar for settings
     with st.sidebar:
         st.title("⚙️Настройки")
-        model_name = st.selectbox("Выбор модели", Config.AVAILABLE_MODELS)
-        model_ckeckpoint = Config.REAL_MODELS_NAMES[model_name]
 
-        if (not hasattr(model, "config")) or (not model.config._name_or_path.endswith(model_ckeckpoint)): # проверка, что нужная модель ещё не загружена
-            model = AutoModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_ckeckpoint)
-            tokenizer = AutoTokenizer.from_pretrained(Config.MODELS_DIR + model_ckeckpoint)
+        model_name = st.selectbox("Выбор модели", Config.AVAILABLE_MODELS)
+        model_path = Config.REAL_MODELS_NAMES[model_name]
+        if last_model != model_name: # проверка, что нужная модель ещё не загружена
+            if not os.path.exists(Config.MODELS_DIR + model_path):
+                print(f"Скачиваю и сохраняю модель {model_name}...")
+                model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
+                tokenizer = AutoTokenizer.from_pretrained(model_path)
+
+                model.save_pretrained(Config.MODELS_DIR + model_path, from_pt=True) # сохранение модели
+                tokenizer.save_pretrained(Config.MODELS_DIR + model_path) # сохранение токенизатора
+            else:
+                print(f"Загружаю сохранённую модель {model_name}...")
+                model = AutoModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path)
+                tokenizer = AutoTokenizer.from_pretrained(Config.MODELS_DIR + model_path)
+            last_model = model_name
+            last_runtime = "PyTorch"
+            
+        runtime = st.selectbox("Выбор рантайма", Config.AVAILABLE_RUNTIMES)
+        if last_runtime != runtime:
+            print(f"Конвертирую модель из рантайма {last_runtime} в {runtime}...")
+
+            if runtime == "PyTorch":
+                print(f"Найдена уже сохранённая вариация модели в рантайме {runtime}...")
+                model = AutoModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path)
+            # elif runtime == "ExecuTorch":
+            #     model = ExecuTorchModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path, export=True, recipe="xnnpack", attn_implementation="custom_sdpa") # export — для моделей трансформеров с версии optimum>=2.0, from_transformers — для optimum<2.0
+            elif runtime == "ONNX":
+                if os.path.exists(Config.MODELS_DIR + model_path + "_ONNX"):
+                    print(f"Найдена уже сохранённая вариация модели в рантайме {runtime}...")
+                    model = ORTModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path + "_ONNX") # export — для моделей трансформеров с версии optimum>=2.0, from_transformers — для optimum<2.0
+                else:
+                    model = ORTModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path, export=True) # export — для моделей трансформеров с версии optimum>=2.0, from_transformers — для optimum<2.0
+                    model.save_pretrained(Config.MODELS_DIR + model_path + "_ONNX")
+            elif runtime == "openVINO":
+                if os.path.exists(Config.MODELS_DIR + model_path + "_openVINO"):
+                    print(f"Найдена уже сохранённая вариация модели в рантайме {runtime}...")
+                    model = OVModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path + "_openVINO") # export — для моделей трансформеров с версии optimum>=2.0, from_transformers — для optimum<2.0
+                else:
+                    model = OVModelForSeq2SeqLM.from_pretrained(Config.MODELS_DIR + model_path, export=True) # export — для моделей трансформеров с версии optimum>=2.0, from_transformers — для optimum<2.0
+                    model.save_pretrained(Config.MODELS_DIR + model_path + "_openVINO")
+
+            last_runtime = runtime # обновляем последний рантайм
+
 
         source_lang = st.selectbox("Язык оригинала", Config.SOURCE_LANG)
         target_lang = st.selectbox("Целевой язык", Config.TARGET_LANG)
@@ -157,6 +200,7 @@ def main():
         st.info("Это приложение является демонстрационной версией основных возможностей.")
 
 
-model, tokenizer = None, None # изначальные объекты модели и токенизатор не существуют
+model, tokenizer, = None, None # изначальные объекты модели и токенизатор не существуют
+last_model, last_runtime =  None, "PyTorch"
 if __name__ == "__main__":
     main()

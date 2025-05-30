@@ -28,21 +28,46 @@
 #     """
 
 
-def get_translation_prompt(text, model, source_lang="Русский", target_lang="Английский"):
+def get_translation_prompt(text, model_name, source_lang="Русский", target_lang="Английский"):
     """
     Returns a prompt for translating the given text while considering cultural context.
     """
+    # global tokenizer
     langs = {
-        "T5": {"Русский": "ru", "Английский": "en"}
+        "T5": {"Русский": "ru", "Английский": "en"},
+        "mT5": {"Русский": "ru", "Английский": "en"},
+        # "MBart": {"Русский": "ru_RU", "Английский": "en_XX"},
+        # "M2M100": {"Русский": "ru", "Английский": "en"},
+        "Marian": {"Русский": ">>rus<<", "Английский": ">>eng<<"},
+        # "LlaMA3.2": {"Русский": "Russian", "Английский": "English"}
     }
-    source_lang, target_lang = langs[model][source_lang], langs[model][target_lang]
 
-    prompts = {
-        "T5": f"translate to {target_lang}: {text}"
-    }
+    if model_name in ["mT5", "MBart", "M2M100", "Marian", "LlaMA3.2"]:
+        source_lang, target_lang = langs[model_name][source_lang], langs[model_name][target_lang]
+    else: # считаем как T5 модель
+        source_lang, target_lang = langs["T5"][source_lang], langs["T5"][target_lang]
 
+    if model_name == "mT5":
+        prompt = f"translate {source_lang}-{target_lang} | {text}"
 
-    return prompts[model]
+    # elif model_name == "MBart":
+    #     tokenizer.src_lang = "ru_RU"
+    #     # при генерации тоже нужно прокидывать токен model.generate(**tokens_encoded, forced_bos_token_id=tokenizer.lang_code_to_id[target_lang])
+
+    # elif model_name == "M2M100":
+    #     tokenizer.src_lang = "ru_RU"
+    #     # при генерации тоже нужно прокидывать токен model.generate(**tokens_encoded, forced_bos_token_id=tokenizer.lang_code_to_id[target_lang])
+
+    elif model_name == "Marian":
+        prompt = f"{target_lang} {text}"
+
+    # elif model_name == "LlaMA3.2":
+    #     prompt = f"You are advanced translation assistant which provides only the translation without any additional comments, explanations or prompts. Translate the following text to {target_lang} language:\n\n{text}"
+
+    else: # T5 models
+        prompt = f"translate to {target_lang}: {text}"
+
+    return prompt
 
 
 def get_sentiment_analysis_prompt(text, source_lang):
