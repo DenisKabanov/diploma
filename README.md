@@ -68,8 +68,9 @@ pip install --user -r requirements.txt
 ```
 conda create --name <env_name> python=3.9.12
 conda activate <env_name>
-pip install --user -r requirements.txt
+pip install -r requirements.txt
 ```
+
 
 ## Setup:
 Перед запуском любого скрипта, как через `python ./src/<script_name>.py` , так и через `sbatch ./src/node_exe/<script_name>.sbatch`, нужно провести его настройку в файле `.env`.
@@ -111,3 +112,29 @@ pkill -u $USER -f vscode-server
 ```
 python -m streamlit run ./main.py
 ```
+
+
+## Troubleshooting
+* Ошибка `ImportError: DLL load failed while importing _ssl: Не найден указанный модуль.` связана с отсутствием библиотек `libcrypto-1_1-x64.dll` и `libssl-1_1-x64.dll` в переменной окружения `PATH`. Исправляется добавлением пути до папки с ними в `PATH`.
+
+    Например, на Linux (или git-bash):
+    ```
+    export PATH=$PATH:/c/Users/<user_name>/anaconda3/envs/<env_name>/Library/bin
+    ```
+
+    На Windows (PowerShell):
+    ```
+    $Env:PATH += ";C:\Users\<user_name>\anaconda3\envs\<env_name>\Library\bin"
+    ```
+
+* Ошибка `ModuleNotFoundError: No module named 'optimum.intel'` связана с расположением модуля openvino. Исправляется добавлением пути в `PATH`.
+
+    Например, на Linux (или git-bash):
+    ```
+    export PATH=$PATH:/c/Users/<user_name>/anaconda3/envs/<env_name>/Lib/site-packages/openvino/libs
+    ```
+
+    На Windows (PowerShell):
+    ```
+    $Env:PATH += ";C:\Users\<user_name>\anaconda3\envs\<env_name>\Lib\site-packages\openvino\libs"
+    ```

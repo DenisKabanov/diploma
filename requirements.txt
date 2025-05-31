@@ -7,13 +7,12 @@ seaborn==0.13.2
 torch==2.5.1
 tqdm==4.67.1
 transformers==4.45.2
-sentencepiece==0.1.99
+sentencepiece==0.2.0
 accelerate==0.27.2
 python-dotenv==1.0.1
 onnx==1.15.0
 onnxruntime==1.15.0
-optimum==1.25.3
-openvino==2025.1.0
+optimum[openvino]==1.25.3
 # torch => 2.7.0
 # pip install optimum-executorch@git+https://github.com/huggingface/optimum-executorch.git
 

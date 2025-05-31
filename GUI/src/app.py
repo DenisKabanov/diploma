@@ -12,8 +12,15 @@ from config.config import Config
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer # для работы моделями
 # from optimum.executorch import ExecuTorchModelForSeq2SeqLM # ExecuTorch runtime
 from optimum.onnxruntime import ORTModelForSeq2SeqLM # ONNX runtime
-os.environ["PATH"] += r";c:\Users\User\anaconda3\envs\gpu\Lib\site-packages\openvino\libs"
+# os.environ["PATH"] += r";c:\Users\User\anaconda3\envs\gpu\Lib\site-packages\openvino\libs"
 from optimum.intel.openvino import OVModelForSeq2SeqLM # openVINO runtime
+
+# изначальные объекты модели и токенизатор не определены
+st.session_state["model"] = None
+st.session_state["tokenizer"] = None
+st.session_state["last_model"] = None
+st.session_state["last_runtime"] = None
+st.session_state["metrics"] = pd.DataFrame(columns=["Model name", "Runtime", "Tokens count", "Latency", "Color"])
 
 def setup_page():
     """
@@ -244,12 +251,6 @@ def main():
         st.subheader("Информация")
         st.info("Это приложение является демонстрационной версией основных возможностей.")
 
-# изначальные объекты модели и токенизатор не определены
-st.session_state["model"] = None
-st.session_state["tokenizer"] = None
-st.session_state["last_model"] = None
-st.session_state["last_runtime"] = None
-st.session_state["metrics"] = pd.DataFrame(columns=["Model name", "Runtime", "Tokens count", "Latency", "Color"])
 
 # colors = {"PyTorch": "blue", "ONNX": "orange", "openVINO": "green"}
 colors = {"PyTorch": sns.color_palette()[0], "ONNX": sns.color_palette()[1], "openVINO": sns.color_palette()[2]}
