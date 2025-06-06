@@ -24,10 +24,10 @@ class Config:
         "T5 pruned structured 0.20",
         "T5 pruned structured 0.25",
         "mT5",
-        "MBart",
-        "M2M100",
+        # "MBart",
+        # "M2M100",
         "Marian",
-        "LlaMA3.2"
+        # "LlaMA3.2"
     ]
 
     REAL_MODELS_NAMES = {
